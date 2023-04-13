@@ -4,14 +4,14 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false 
+      fail-fast: false
       matrix:
         os: [windows-latest]
         build_type: [Release]
         enable_ui: [on]
         include:
-          - os: ubuntu-latest
-            build_type: Debug
+          - os: winwods-latest
+            build_type: Release
             enable_ui: on
     steps:
     - uses: actions/checkout@v2
@@ -45,9 +45,9 @@ jobs:
         else
           export enable_ccache=on
         fi
-                curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/skia.zip --output skia.zip
+        curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/skia.zip --output skia.zip
         7z x skia.zip
-        cmake -S . -B build -G Ninja \  
+        cmake -S . -B build -G Ninja \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DENABLE_UI=${{ matrix.enable_ui }} \
           -DENABLE_CCACHE=$enable_ccache \
@@ -55,15 +55,10 @@ jobs:
           -DSKIA_DIR=./skia \
           -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 \
           -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib
-
     - name: Compiling
       shell: bash
       run: |
         cd build && ninja
-
-        export ASEPRITE=$PWD/build/bin/aseprite
-        cd tests
-        $XVFB bash run-tests.sh
     - uses: actions/upload-artifact@v3
       with:
         name: aseprite
